@@ -1,152 +1,377 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MAZKIPLAY RED TEAM</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
-body { background-color: #000; color: #0f0; font-family: 'Fira Code', monospace; overflow: hidden; margin: 0; }
-.glitch { animation: glitch 1s linear infinite; }
-@keyframes glitch {
-  0% { transform: translate(0) }
-  20% { transform: translate(-2px, 2px) }
-  40% { transform: translate(-2px, -2px) }
-  60% { transform: translate(2px, 2px) }
-  80% { transform: translate(2px, -2px) }
-  100% { transform: translate(0) }
-}
-#canvas { position: absolute; top: 0; left: 0; z-index: -1; width: 100vw; height: 100vh; }
-.screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; position: relative; padding: 20px; }
-.box { background: rgba(0, 0, 0, 0.85); border: 1px solid #0f0; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 0 15px rgba(0,255,0,0.2); backdrop-filter: blur(5px); }
-.box-red { border-color: #f00; box-shadow: 0 0 20px rgba(255,0,0,0.3); }
-input { background: #001100; border: 1px solid #0f0; color: #0f0; padding: 15px; width: 100%; margin-bottom: 15px; outline: none; font-family: inherit; }
-input.input-red { background: #110000; border-color: #f00; color: #f00; }
-button { background: #0f0; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; font-family: inherit; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-button:active { transform: scale(0.95); }
-button.btn-red { background: #f00; color: #fff; }
-.hidden { display: none !important; }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { background: #f00; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Mazkiplay Cyber</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #000;
+            color: #0f0;
+            overflow: hidden;
+            margin: 0;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .glitch {
+            position: relative;
+            animation: glitch 1s linear infinite;
+        }
+
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 10;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 255, 0, 0.1) 50%, rgba(0, 0, 0, 0) 100%);
+            opacity: 0.1;
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100%; }
+        }
+
+        .hacker-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .blood-red-glow {
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+            border: 1px solid #ff0000;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        input {
+            background: rgba(0, 10, 0, 0.9) !important;
+            border: 1px solid #0f0 !important;
+            color: #0f0 !important;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #ff0000;
+        }
+
+        .no-tap {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
 
-<div id="loginScreen" class="screen">
-  <div class="box">
-    <h1 class="glitch text-2xl font-bold mb-6">MAZKIPLAY CYBER</h1>
-    <input type="text" id="user" placeholder="ID Researcher">
-    <input type="password" id="pass" placeholder="Access Key">
-    <button onclick="login()">AUTHORIZE</button>
-    <p id="msg" class="text-red-500 mt-4 text-xs font-bold h-4"></p>
-  </div>
-</div>
+    <canvas id="canvas" class="hacker-bg"></canvas>
+    <div class="scanline"></div>
 
-<div id="dashScreen" class="screen hidden">
-  <div class="box box-red">
-    <h1 class="text-red-500 text-xl font-bold mb-2 tracking-widest">TARGET ACQUISITION</h1>
-    <p class="text-[10px] text-red-700 mb-6 uppercase">Input Phone Identifier</p>
-    <input type="tel" id="target" placeholder="812xxxxxx" class="input-red text-center text-lg font-bold">
-    <button onclick="hack()" class="btn-red">INITIATE EXPLOIT</button>
-  </div>
-</div>
-
-<div id="overlayScreen" class="screen hidden" style="background: rgba(0,0,0,0.95);">
-  <div class="box box-red border-none shadow-none">
-    <h2 id="title" class="text-red-500 mb-6 font-bold tracking-widest text-lg">SYSTEM OVERRIDE...</h2>
-    <div style="width: 100%; background: #222; height: 8px; margin-bottom: 20px; border-radius: 10px; overflow: hidden;">
-      <div id="bar" style="width: 0%; height: 100%; background: #f00; transition: width 0.3s;"></div>
+    <div id="loginScreen" class="flex flex-col items-center justify-center min-h-screen w-full p-4 text-center">
+        <div class="bg-black/95 p-6 sm:p-10 rounded-lg border border-green-500 max-w-sm w-full backdrop-blur-md">
+            <h1 class="glitch text-2xl sm:text-3xl font-bold mb-1 text-green-400">WELCOME TO</h1>
+            <h2 class="text-xl sm:text-2xl font-black mb-8 tracking-tighter text-white uppercase">Mazkiplay Cyber</h2>
+            
+            <div class="space-y-5">
+                <div class="text-left">
+                    <label class="block text-[10px] uppercase tracking-widest mb-1 text-green-600">Username</label>
+                    <input type="text" id="user" placeholder="Nama Anda" class="w-full p-4 rounded outline-none focus:ring-1 focus:ring-green-400">
+                </div>
+                <div class="text-left">
+                    <label class="block text-[10px] uppercase tracking-widest mb-1 text-green-600">Password</label>
+                    <input type="password" id="pass" placeholder="Password" class="w-full p-4 rounded outline-none focus:ring-1 focus:ring-green-400">
+                </div>
+                <button onclick="checkLogin()" class="no-tap w-full py-4 bg-green-600 text-black font-black hover:bg-green-400 active:scale-95 transition-all shadow-lg shadow-green-900/20">MASUK SISTEM</button>
+            </div>
+            <p id="loginMsg" class="mt-4 text-xs font-bold text-red-500 h-4"></p>
+        </div>
     </div>
-    <div id="log" style="height: 150px; overflow-y: auto; text-align: left; font-size: 11px; color: #0f0; margin-bottom: 20px; background: #000; padding: 10px; border: 1px solid #0f0;"></div>
-    <button id="done" class="hidden btn-red" onclick="location.reload()">RETURN TO PANEL</button>
-  </div>
-</div>
 
-<script>
-const cvs = document.getElementById('canvas');
-const ctx = cvs.getContext('2d');
+    <div id="successScreen" class="hidden flex-col items-center justify-center min-h-screen w-full p-6 text-center fade-in">
+        <div class="bg-black/95 p-8 rounded-2xl border-2 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)] max-w-sm w-full">
+            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-user-shield text-4xl text-green-500"></i>
+            </div>
+            <h1 class="text-xl font-black mb-2 text-white">SELAMAT ANDA BERHASIL LOGIN</h1>
+            <p class="text-green-400 text-sm mb-10">Selamat Datang di Mazkiplay System.</p>
+            <button onclick="enterDashboard()" class="no-tap w-full py-4 bg-green-500 text-black font-black text-xl hover:scale-105 active:scale-95 transition-all">MASUK</button>
+        </div>
+    </div>
 
-function resize() {
-  cvs.width = window.innerWidth;
-  cvs.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
+    <div id="hackerDashboard" class="hidden flex flex-col min-h-screen w-full p-4">
+        <header class="flex justify-between items-center mb-10 border-b border-red-900 pb-3">
+            <div class="text-red-600 font-black italic tracking-tighter text-lg">MAZKIPLAY DARK V2.0</div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-red-600 rounded-full animate-ping"></div>
+                <span class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Brutal Mode</span>
+            </div>
+        </header>
 
-const chars = "010101<>[]{}XMAZKI!@#$";
-const drops = Array(Math.floor(cvs.width / 15)).fill(1);
-let matrixColor = "#0f0";
+        <div class="flex-grow flex flex-col items-center justify-center">
+            <div class="w-full max-w-md p-6 bg-black/90 blood-red-glow rounded-xl backdrop-blur-md">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-secret text-5xl text-red-600 mb-3"></i>
+                    <h2 class="text-red-500 font-black text-xl tracking-widest uppercase">Target Acquisition</h2>
+                    <p class="text-[10px] text-red-800">MASUKKAN NOMOR TELEPON TARGET</p>
+                </div>
+                
+                <div class="relative mb-8">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 border-r border-red-900 pr-3">
+                        <img src="https://flagcdn.com/w20/id.png" alt="ID" class="w-4">
+                        <span class="text-red-500 font-bold">+62</span>
+                    </div>
+                    <input type="tel" id="targetNumber" placeholder="812xxxxx" class="w-full py-4 pl-24 pr-4 rounded-lg bg-black border-red-600 text-red-500 font-bold text-lg outline-none" style="border: 1px solid #ff0000 !important;">
+                </div>
+                
+                <button onclick="accessDarkPanel()" class="no-tap w-full py-4 bg-red-700 text-white font-black hover:bg-red-600 active:scale-95 transition-all tracking-widest">TEMBUSI PERANGKAT</button>
+            </div>
+        </div>
+    </div>
 
-setInterval(() => {
-  ctx.fillStyle = "rgba(0,0,0,0.1)";
-  ctx.fillRect(0, 0, cvs.width, cvs.height);
-  ctx.fillStyle = matrixColor;
-  ctx.font = "15px monospace";
-  
-  for(let i = 0; i < drops.length; i++) {
-    const char = chars[Math.floor(Math.random() * chars.length)];
-    ctx.fillText(char, i * 15, drops[i] * 15);
-    if(drops[i] * 15 > cvs.height && Math.random() > 0.95) drops[i] = 0;
-    drops[i]++;
-  }
-}, 50);
+    <div id="blackHatPanel" class="hidden flex flex-col h-screen w-full bg-black overflow-hidden">
+        <div class="p-4 border-b border-red-900 bg-red-950/20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-skull text-red-600"></i>
+                <span class="text-red-500 font-bold text-xs uppercase">Target: <span id="displayTarget" class="text-white"></span></span>
+            </div>
+        </div>
 
-function login() {
-  const u = document.getElementById('user').value.toLowerCase();
-  const p = document.getElementById('pass').value;
-  if(u === "kiply" && p === "kiply123") {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('dashScreen').classList.remove('hidden');
-    matrixColor = "#f00";
-  } else {
-    document.getElementById('msg').innerText = "ACCESS DENIED";
-    setTimeout(() => document.getElementById('msg').innerText = "", 2000);
-  }
-}
+        <div id="menuGrid" class="flex-grow overflow-y-auto p-4 grid grid-cols-2 gap-3 pb-24">
+            <button onclick="startHack('Hack Kamera')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-camera text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack Kamera</span>
+            </button>
+            <button onclick="startHack('Database Ponsel')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-database text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack Database</span>
+            </button>
+            <button onclick="startHack('Galeri Ponsel')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-images text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack Galeri</span>
+            </button>
+            <button onclick="startHack('Lokasi Perangkat')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-map-marker-alt text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack Lokasi</span>
+            </button>
+            <button onclick="startHack('Layar Target')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-desktop text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack Layar</span>
+            </button>
+            <button onclick="startHack('Ganti Wallpaper')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-paint-brush text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Ganti Wallpaper</span>
+            </button>
+            <button onclick="startHack('Putus Jaringan')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-wifi-slash text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Kill Internet</span>
+            </button>
+            <button onclick="startHack('WhatsApp Target')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fab fa-whatsapp text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack WA</span>
+            </button>
+            <button onclick="toggleEwallet()" class="no-tap p-6 border-2 border-red-500 bg-red-600 text-white rounded-2xl flex flex-col items-center gap-2 col-span-2 shadow-lg active:scale-95">
+                <i class="fas fa-wallet text-3xl"></i> <span class="font-black tracking-widest text-sm uppercase">Hack E-Wallet & Bank</span>
+            </button>
+            <button onclick="startHack('SMS Target')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-sms text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack SMS</span>
+            </button>
+            <button onclick="startHack('Lampu Flash')" class="no-tap p-5 border border-red-900 bg-red-950/5 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-red-700 active:scale-90">
+                <i class="fas fa-bolt text-2xl text-red-600"></i> <span class="text-[9px] font-black uppercase text-center">Hack Flash</span>
+            </button>
+        </div>
 
-function hack() {
-  if(document.getElementById('target').value.length < 5) return;
-  document.getElementById('dashScreen').classList.add('hidden');
-  document.getElementById('overlayScreen').classList.remove('hidden');
-  
-  let p = 0;
-  let idx = 0;
-  const msgs = [
-    "[INFO] Establishing secure connection...",
-    "[INFO] Bypassing target firewall...",
-    "[WARN] Security enclave detected...",
-    "[INFO] Injecting root payload...",
-    "[INFO] Extracting filesystem keys...",
-    "[OK] Exploit successful. Backdoor opened."
-  ];
-  const log = document.getElementById('log');
-  const bar = document.getElementById('bar');
-  
-  const int = setInterval(() => {
-    p += Math.floor(Math.random() * 8) + 2;
-    if(p > 100) p = 100;
-    bar.style.width = p + "%";
-    
-    if(Math.random() > 0.6 && idx < msgs.length) {
-      log.innerHTML += "<div>" + msgs[idx++] + "</div>";
-      log.scrollTop = log.scrollHeight;
-    }
-    
-    if(p === 100) {
-      clearInterval(int);
-      if(idx < msgs.length) {
-        log.innerHTML += "<div>" + msgs[msgs.length-1] + "</div>";
-        log.scrollTop = log.scrollHeight;
-      }
-      document.getElementById('title').innerText = "TARGET COMPROMISED";
-      document.getElementById('title').style.color = "#0f0";
-      bar.style.background = "#0f0";
-      document.getElementById('done').classList.remove('hidden');
-    }
-  }, 300);
-}
-</script>
+        <div id="ewalletMenu" class="hidden flex-grow overflow-y-auto p-4 flex flex-col gap-3 pb-24 bg-gradient-to-b from-red-950/20 to-black">
+            <button onclick="toggleEwallet()" class="text-left font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-chevron-left"></i> KEMBALI</button>
+            <button onclick="startHack('Saldo DANA')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack DANA Target</span> <i class="fas fa-money-bill text-red-600"></i>
+            </button>
+            <button onclick="startHack('Bank BRI')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack BRI Target</span> <i class="fas fa-university text-red-600"></i>
+            </button>
+            <button onclick="startHack('Bank BCA')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack BCA Target</span> <i class="fas fa-university text-red-600"></i>
+            </button>
+            <button onclick="startHack('Bank Mandiri')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack Mandiri Target</span> <i class="fas fa-university text-red-600"></i>
+            </button>
+            <button onclick="startHack('Bank BNI')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack BNI Target</span> <i class="fas fa-university text-red-600"></i>
+            </button>
+            <button onclick="startHack('Isi Rekening')" class="no-tap p-5 bg-red-600 text-white rounded-xl flex justify-between items-center">
+                <span class="font-black text-sm uppercase">Kuras Rekening</span> <i class="fas fa-skull-crossbones"></i>
+            </button>
+            <button onclick="startHack('Gmail')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack Gmail</span> <i class="fab fa-google text-red-600"></i>
+            </button>
+            <button onclick="startHack('Pulsa')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack Pulsa</span> <i class="fas fa-sim-card text-red-600"></i>
+            </button>
+            <button onclick="startHack('Kuota')" class="no-tap p-4 bg-black border border-red-800 rounded-xl flex justify-between items-center group">
+                <span class="text-xs font-bold text-red-500 uppercase">Hack Kuota</span> <i class="fas fa-globe text-red-600"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="hackOverlay" class="hidden fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 backdrop-blur-xl">
+        <div id="matrixOverlay" class="absolute inset-0 opacity-20 pointer-events-none"></div>
+        <div class="relative z-10 w-full max-w-sm text-center">
+            <h2 id="hackTitle" class="text-lg font-black text-red-600 mb-6 tracking-widest uppercase">Initializing...</h2>
+            <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden mb-6 border border-red-900/30">
+                <div id="progressBar" class="bg-red-600 h-full w-0 transition-all duration-300"></div>
+            </div>
+            <div id="hackLog" class="text-left text-[9px] text-green-500 h-40 overflow-hidden mb-6 font-mono bg-black/50 p-3 border border-green-900/20 terminal-scroll"></div>
+            <p id="waitText" class="animate-pulse text-red-400 text-[10px] font-bold tracking-widest uppercase">Progres Hack Device. Please Wait Mr.</p>
+            <div id="finalAction" class="hidden flex flex-col items-center fade-in">
+                <p class="text-green-500 font-black text-lg mb-6 uppercase">Data Berhasil Dienkripsi!</p>
+                <button onclick="showFinalSuccess()" class="no-tap w-full py-4 bg-red-600 text-white font-black rounded-xl animate-pulse">HACK SEKARANG ...</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="hidden fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-6">
+        <div class="bg-zinc-950 border-2 border-green-500 p-8 rounded-3xl text-center max-w-xs w-full">
+            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check text-4xl text-black"></i>
+            </div>
+            <h2 class="text-4xl font-black text-white mb-2 italic">SUKSES!</h2>
+            <p class="text-green-400 font-bold mb-8 italic tracking-tighter uppercase">Berhasil Mengeksekusi Target</p>
+            <button onclick="closeModal()" class="no-tap w-full py-3 bg-zinc-800 text-green-500 font-bold rounded-xl uppercase">Kembali ke Panel</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const charList = "010101<>[]{}/?=+*^%$#@!アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+        const fontSize = 14;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+        let matrixColor = "#0f0";
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = matrixColor;
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = charList.charAt(Math.floor(Math.random() * charList.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 40);
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        function checkLogin() {
+            const u = document.getElementById('user').value.toLowerCase().trim();
+            const p = document.getElementById('pass').value.trim();
+            if (u === "kiply" && p === "kiply123") {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('successScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('loginMsg').innerText = "IDENTITAS TIDAK VALID!";
+                setTimeout(() => document.getElementById('loginMsg').innerText = "", 2000);
+            }
+        }
+
+        function enterDashboard() {
+            document.getElementById('successScreen').classList.add('hidden');
+            document.getElementById('hackerDashboard').classList.remove('hidden');
+            matrixColor = "#f00"; 
+        }
+
+        function accessDarkPanel() {
+            const num = document.getElementById('targetNumber').value;
+            if (num.length < 8) return;
+            document.getElementById('displayTarget').innerText = "+62 " + num;
+            document.getElementById('hackerDashboard').classList.add('hidden');
+            document.getElementById('blackHatPanel').classList.remove('hidden');
+        }
+
+        function toggleEwallet() {
+            document.getElementById('menuGrid').classList.toggle('hidden');
+            document.getElementById('ewalletMenu').classList.toggle('hidden');
+        }
+
+        function startHack(title) {
+            const overlay = document.getElementById('hackOverlay');
+            const hackTitle = document.getElementById('hackTitle');
+            const progressBar = document.getElementById('progressBar');
+            const waitText = document.getElementById('waitText');
+            const finalAction = document.getElementById('finalAction');
+            const log = document.getElementById('hackLog');
+            overlay.classList.remove('hidden');
+            hackTitle.innerText = "Targeting: " + title.toUpperCase();
+            progressBar.style.width = "0%";
+            waitText.classList.remove('hidden');
+            finalAction.classList.add('hidden');
+            log.innerHTML = "";
+            const logMessages = [
+                "[SYS] Mencari celah keamanan...",
+                "[SYS] Bypass sistem keamanan...",
+                "[SYS] Injeksi skrip exploit...",
+                "[SYS] Sinkronisasi data remote...",
+                "[SYS] Enkripsi file sistem..."
+            ];
+            let progress = 0;
+            let logIndex = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    waitText.classList.add('hidden');
+                    finalAction.classList.remove('hidden');
+                }
+                progressBar.style.width = progress + "%";
+                if (logIndex < logMessages.length) {
+                    const p = document.createElement('p');
+                    p.innerText = logMessages[logIndex++];
+                    log.appendChild(p);
+                    log.scrollTop = log.scrollHeight;
+                }
+            }, 200);
+        }
+
+        function showFinalSuccess() {
+            document.getElementById('hackOverlay').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
